@@ -1,0 +1,32 @@
+version: '3.6'
+ 
+services:
+  db:
+    image: mariadb:latest
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: cra
+      MYSQL_DATABASE: cra
+      MYSQL_USER: cra
+      MYSQL_PASSWORD: cra
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      # - ./docker/mysql/migrations:/docker-entrypoint-initdb.d
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: cra
+      PMA_PASSWORD: cra
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8080:80
+volumes:
+  dbdata:
