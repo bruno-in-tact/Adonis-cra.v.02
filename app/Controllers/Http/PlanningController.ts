@@ -1,8 +1,8 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Planning from 'App/Models/Planning'
 import UpdatePlanningValidator from 'App/Validators/Plannings/UpdatePlanningValidator'
 import CreatePlanningValidator from 'App/Validators/Plannings/CreatePlanningValidator'
-import UserProjects from 'App/Models/UserProject'
+import Planning from 'App/Models/Planning'
+import UserProject from 'App/Models/UserProject'
 
 export default class PlanningsController {
 
@@ -32,7 +32,7 @@ export default class PlanningsController {
  */
   public async new({ request, response }: HttpContextContract) {
     const planingPayLoad = await request.validate(CreatePlanningValidator)
-    const userProject = await UserProjects.findNotDeleted(request.body().user_project_id)
+    const userProject = await UserProject.findNotDeleted(request.body().user_project_id)
     if (!userProject) {
       return response.unprocessableEntity({
         errors: [
@@ -65,7 +65,7 @@ export default class PlanningsController {
    */
   public async update({ request, params, response }: HttpContextContract) {
     const planning = await Planning.findOrFail(params.id)
-    const userProject = await UserProjects.findNotDeleted(request.body().user_project_id)
+    const userProject = await UserProject.findNotDeleted(request.body().user_project_id)
     planning?.merge(await request.validate(UpdatePlanningValidator))
 
     if (!userProject) {
@@ -121,7 +121,7 @@ export default class PlanningsController {
 
   public async softDelete({ params }: HttpContextContract) {
     const planning = await Planning.findOrFail(params.id)
-    planning.isDeleted = true
+    planning.$isDeleted = true
     await planning.save()
 
     return planning

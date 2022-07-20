@@ -1,11 +1,12 @@
 import UserLoginValidator from 'App/Validators/Users/UserLoginValidator';
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import User from 'App/Models/User'
-import Token from 'App/Models/Token'
+
 import PassLostUserValidator from 'App/Validators/Users/PassLostUserValidator'
 import { TokenTypes } from 'App/Contracts/enums'
 import { DateTime } from 'luxon';
 import PassLostPasswordTokenValidator from 'App/Validators/Users/PassLostPasswordTokenValidator'
+import Token from 'App/Models/Token';
+import User from 'App/Models/User';
 
 export default class SecurityController {
 

@@ -11,6 +11,9 @@ export default class Project extends BaseModel {
 
   @column()
   public key: string;
+  
+  @column()
+  public clientName: string;
 
   @column({
     serialize: (value?: string) => {
@@ -36,7 +39,7 @@ export default class Project extends BaseModel {
   public updatedAt: DateTime;
 
   @manyToMany(() => User, {
-    pivotTable: 'user_project',
+    pivotTable: 'user_projects',
     pivotColumns: ['id'],
   })
   public users: ManyToMany<typeof User>;

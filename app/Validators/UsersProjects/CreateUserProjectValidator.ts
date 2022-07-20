@@ -29,8 +29,8 @@ export default class CreateUserProjectValidator {
    *    ```
    */
   public schema = schema.create({
-    userId: schema.number(),
-    projectId: schema.number(),
+    user_id: schema.number(),
+    project_id: schema.number(),
   })
 
 

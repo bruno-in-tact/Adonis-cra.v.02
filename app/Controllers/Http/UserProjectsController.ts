@@ -1,27 +1,21 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import UnAuthorizedException from 'App/Exceptions/UnAuthorizedException'
-import UserProject from 'App/Models/UserProject'
-import CreateUserProjectValidator from 'App/Validators/UsersProjects/CreateUserProjectValidator'
-import UpdateUserProjectValidator from 'App/Validators/UsersProjects/UpdateUserProjectValidator'
 import Project from 'App/Models/Project';
 import User from 'App/Models/User';
-import { MyError } from 'App/Exceptions/MyError'
+import UserProject from 'App/Models/UserProject';
+import UpdateUserProjectValidator from 'App/Validators/UsersProjects/UpdateUserProjectValidator'
+
 
 export default class UserProjectsController {
   /*
    * index = GET ALL
    * Params: no
    */
-  public async index({auth, response }: HttpContextContract) {
-    const sessionUser = auth.use('web').user!;
-   
+  public async getAllEvenDeleted({}: HttpContextContract) {
     const usersProjects = await UserProject.all()
+    console.log('usersProjects',usersProjects);
+  
     return usersProjects
     }
-
-
-  
-
 
   /*
 * allNotDeleted =  find all usersProject not soft deleted
@@ -39,43 +33,41 @@ export default class UserProjectsController {
  * new =  create a new userProject
  * Params: request, response
  */
-  public async new({ request, response }: HttpContextContract) {
-  
-    const userProjectPayLoad = await request.validate(CreateUserProjectValidator)
+  public async new({  response, request}: HttpContextContract) {
     const user = await User.findNotDeleted(request.body().user_id)
     const project = await Project.findNotDeleted(request.body().project_id)
-    if(!user){
+
+
+    if (!project) {
       return response.unprocessableEntity({
         errors: [
           {
-            field: 'user_id',
+            field: 'projectId',
             rule: 'exists',
           },
         ],
       });
-    }else{
-      if(!project){
-        return response.unprocessableEntity({
-          errors: [
-            {
-              field: 'project_id',
-              rule: 'exists',
-            },
-          ],
-        });
+    }
+    if (!user) {
+      return response.unprocessableEntity({
+        errors: [
+          {
+            field: 'user',
+            rule: 'exists',
+          },
+        ],
+      });
     }
 
-    const userProject = await UserProject.create(userProjectPayLoad)
-    if (!userProject) {
-      return response.notFound();
-    }
-    console.log(userProjectPayLoad)
+    // On est assuré que tout existe
+    // On créé la liaison
+    await project.related('users').attach([user.id]);
 
-    return userProject
-
+    
+    return response.created();
 
   }
-}
+
 
   /**
     * FIND user by ID
@@ -120,7 +112,7 @@ export default class UserProjectsController {
         ],
       });
       console.log('ERROR');
-      throw new MyError();
+      // throw new MyError();
     }
     return userProject
 
@@ -133,7 +125,7 @@ export default class UserProjectsController {
 
   public async softDelete({ params }: HttpContextContract) {
     const userProject = await UserProject.findOrFail(params.id)
-    userProject.isDeleted = true
+    userProject.$isDeleted = true
     await userProject.save()
 
     return userProject

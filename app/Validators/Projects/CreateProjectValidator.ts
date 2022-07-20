@@ -26,11 +26,11 @@ export default class CreateProjectValidator {
    */
   public schema = schema.create({
 
-    projectName: schema.string({trim: true },[rules.regex(/^[a-zA-Z]+$/),]),
-    projectKey: schema.string([rules.unique({ table: 'projects', column: 'project_key' })]),
+    title: schema.string({trim: true },[rules.regex(/^[a-zA-Z]+$/),]),
+    key: schema.string([rules.unique({ table: 'projects', column: 'key' })]),
     clientName: schema.string({trim: true },),
-    projectDetails: schema.string.optional({trim: true },),
-    restaurantTicket:schema.boolean.optional(),
+    description: schema.string.optional({trim: true },),
+    isElligibleTr:schema.boolean.optional(),
 
   })
 

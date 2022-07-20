@@ -25,7 +25,6 @@ export default class CreateUserValidator {
 
       password: schema.string([rules.minLength(6), rules.escape()],),
       start_date: schema.string([rules.escape()]),
-      remember_me_token: schema.string.optional([rules.escape()]),
       town: schema.string.optional({ trim: true }, [rules.escape()]),
       country: schema.string.optional({ trim: true }, [rules.escape()]),
       is_admin: schema.boolean.optional([rules.escape()]),

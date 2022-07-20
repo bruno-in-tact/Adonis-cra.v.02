@@ -1,91 +1,70 @@
-import { DateTime } from 'luxon'
-import { BaseModel, column, beforeSave, manyToMany } from '@ioc:Adonis/Lucid/Orm'
-import Hash from '@ioc:Adonis/Core/Hash'
-import Logger from '@ioc:Adonis/Core/Logger'
-import Project from './Project'
-
+import { DateTime } from 'luxon';
+import { BaseModel, beforeSave, column, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm';
+import Hash from '@ioc:Adonis/Core/Hash';
+import Project from './Project';
 
 export default class User extends BaseModel {
-  static withTrashed() {
-    throw new Error('Method not implemented.')
-  }
   @column({ isPrimary: true })
-  public id: number
-
-  @column()
-  public firstName: string
-
-  // @column()
-  // public uid?: number
-
-  @column()
-  public lastName: string
-
-  @column({
-    serialize: (value?: Number) => {
-      return !!value;
-    },
-  })  public isAdmin: boolean
-
-  @column({ serializeAs: null })
-  public password: string
+  public id: number;
 
   @column()
   public email: string;
 
   @column({ serializeAs: null })
-  public rememberMeToken?: string;
+  public password: string;
 
   @column()
-  public town?: string
+  public first_name: string;
 
   @column()
-  public country?: string
+  public last_name: string;
 
   @column()
-  public isDeleted?: boolean
+  public country: string;
 
   @column()
-  public startDate?: DateTime
+  public town: string;
 
   @column()
-  public endDate?: DateTime
+  public start_date: DateTime;
 
-  @column.dateTime({ columnName: 'deletedAt' })
-  public deletedAt?: DateTime | null
+  @column({
+    serialize: (value?: Number) => {
+      return !!value;
+    },
+  })
+  public isAdmin: boolean;
 
-  @column.dateTime({ autoCreate: true })
-  public createdAt: DateTime
+  @column({ serializeAs: null })
+  public isDeleted: boolean;
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
+  @column.dateTime({ autoCreate: true, serializeAs: null })
+  public createdAt: DateTime;
 
-  // à vérifier
-  @manyToMany(() => Project)
-  public projects: manyToMany<typeof Project>;
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
+  public updatedAt: DateTime;
 
-
-  // function 
-  public static findNotDeleted(id?: number) {
-    return this.query().where({ id, isDeleted: false }).first();
+  public static findNotDeleted(userId?: number) {
+    return this.query().where({ id: userId, isDeleted: false }).first();
   }
-  public static findAllNotDeleted() {
-    return this.query().where({ isDeleted: false });
-  }
+
   public static findNotDeletedByEmail(email: string) {
     return this.query().where({ email, isDeleted: false }).first();
   }
 
+  public static findAllNotDeleted() {
+    return this.query().where('isDeleted', false);
+  }
+
+  @manyToMany(() => Project, {
+    pivotTable: 'user_projects',
+  })
+  public projects: ManyToMany<typeof Project>;
+
   @beforeSave()
   public static async hashPassword(user: User) {
     if (user.$dirty.password) {
-      try {
-        user.password = await Hash.make(user.password)
-      }
-      catch (error) {
-        Logger.error(error)
-      }
+      user.password = await Hash.make(user.password);
     }
   }
-
 }

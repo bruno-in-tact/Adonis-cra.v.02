@@ -41,7 +41,6 @@ export default class UpdateUserValidator {
       })]),
       password: schema.string.optional([rules.minLength(6), rules.escape()],),
       start_date: schema.string.optional([rules.escape()]),
-      remember_me_token: schema.string.optional([rules.escape()]),
       town: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
       country: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
       is_admin: schema.boolean.optional([rules.escape()]),

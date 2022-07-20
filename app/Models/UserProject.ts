@@ -17,4 +17,12 @@ export default class UserProject extends BaseModel {
 
   @hasMany(() => User)
   public users: HasMany<typeof User>;
+
+  public static findNotDeleted(projectId?: number) {
+    return this.query().where({ id: projectId, isDeleted: false }).first();
+  }
+
+  public static findAllNotDeleted() {
+    return this.query().where('isDeleted', false);
+  }
 }
