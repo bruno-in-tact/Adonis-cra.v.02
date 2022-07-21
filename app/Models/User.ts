@@ -57,7 +57,7 @@ export default class User extends BaseModel {
   }
 
   @manyToMany(() => Project, {
-    pivotTable: 'user_projects',
+     pivotTable: 'user_project',
   })
   public projects: ManyToMany<typeof Project>;
 

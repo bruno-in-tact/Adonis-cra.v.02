@@ -12,6 +12,10 @@ export default class UserProject extends BaseModel {
   @column()
   public user_id: number;
 
+  @column({ serializeAs: null })
+  public isDeleted?: boolean;
+
+
   @hasMany(() => Project)
   public projects: HasMany<typeof Project>;
 
@@ -21,6 +25,7 @@ export default class UserProject extends BaseModel {
   public static findNotDeleted(projectId?: number) {
     return this.query().where({ id: projectId, isDeleted: false }).first();
   }
+
 
   public static findAllNotDeleted() {
     return this.query().where('isDeleted', false);

@@ -30,7 +30,7 @@ export default class Project extends BaseModel {
   public isElligibleTr: boolean;
 
   @column({ serializeAs: null })
-  public isDeleted: boolean;
+  public isDeleted?: boolean;
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
@@ -39,7 +39,7 @@ export default class Project extends BaseModel {
   public updatedAt: DateTime;
 
   @manyToMany(() => User, {
-    pivotTable: 'user_projects',
+    pivotTable: 'user_project',
     pivotColumns: ['id'],
   })
   public users: ManyToMany<typeof User>;

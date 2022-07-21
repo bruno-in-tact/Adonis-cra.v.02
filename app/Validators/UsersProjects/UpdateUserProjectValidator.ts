@@ -27,6 +27,7 @@ export default class UpdateUserProjectValidator {
   public schema = schema.create({
     userId: schema.number.optional(),
     projectId: schema.number.optional(),
+    isDeleted: schema.boolean.optional()
   })
 
   

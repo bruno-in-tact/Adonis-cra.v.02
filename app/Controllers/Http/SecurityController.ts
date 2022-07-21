@@ -40,14 +40,14 @@ export default class SecurityController {
       },
     })
   }
-  /**
+  /*
    * logout
    */
   public async logout({ auth }: HttpContextContract) {
     await auth.use('web').logout();
     return { message: 'Logout successful' };
   }
-   /**
+  /*
  * PassLost user 
  * PassLostUser /users/passLost/:id
  */
@@ -70,7 +70,7 @@ export default class SecurityController {
       return response.noContent();
     }
   
-    /**
+    /*
      * passlost : consume token
      */
     public async passlostUpdate({ request, response }: HttpContextContract) {

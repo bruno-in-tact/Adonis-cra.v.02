@@ -3,6 +3,7 @@ import UpdatePlanningValidator from 'App/Validators/Plannings/UpdatePlanningVali
 import CreatePlanningValidator from 'App/Validators/Plannings/CreatePlanningValidator'
 import Planning from 'App/Models/Planning'
 import UserProject from 'App/Models/UserProject'
+import User from 'App/Models/User'
 
 export default class PlanningsController {
 
@@ -30,27 +31,50 @@ export default class PlanningsController {
  * new =  create a new planning
  * Params: request, response
  */
+  // public async new({ request, response }: HttpContextContract) {
+  //   const planingPayLoad = await request.validate(CreatePlanningValidator)
+  //   console.log(request.body());
+
+  //   const userProject = await UserProject.find(request.body().user_project_id)
+  //   if (!userProject) {
+  //     return response.unprocessableEntity({
+  //       errors: [
+  //         {
+  //           field: 'user_project_id',
+  //           rule: 'exists',
+  //         },
+  //       ],
+  //     });
+  //   }else{
+  //     const planning = await Planning.create(planingPayLoad)
+  //     console.log(planingPayLoad)
+  //     return planning
+  //   }
+
+  // }
+
   public async new({ request, response }: HttpContextContract) {
     const planingPayLoad = await request.validate(CreatePlanningValidator)
-    const userProject = await UserProject.findNotDeleted(request.body().user_project_id)
-    if (!userProject) {
+    const userId = (request.body().user_project_id)
+    const user = await User.findNotDeleted(userId);
+    if (user) {
+
+      const planning = await Planning.create(planingPayLoad)
+      return planning
+    } else {
       return response.unprocessableEntity({
         errors: [
           {
-            field: 'user_project_id',
+            field: 'user_project',
             rule: 'exists',
           },
         ],
       });
-    }else{
-      const planning = await Planning.create(planingPayLoad)
-      console.log(planingPayLoad)
-      return planning
     }
-    
+
   }
 
-  /**
+  /*
     * FIND planning by ID
     * Find Planning /users/:id
     */
@@ -63,57 +87,30 @@ export default class PlanningsController {
    * update =  update by id
    * Params: request, response
    */
-  public async update({ request, params, response }: HttpContextContract) {
-    const planning = await Planning.findOrFail(params.id)
-    const userProject = await UserProject.findNotDeleted(request.body().user_project_id)
-    planning?.merge(await request.validate(UpdatePlanningValidator))
 
-    if (!userProject) {
-      return response.unprocessableEntity({
-        errors: [
-          {
-            field: 'user_project_id',
-            rule: 'exists',
-          },
-        ],
-      });
+    public async update({ request, params,response }: HttpContextContract) {
+
+      const planning = await Planning.findNotDeleted(params.id)
+      planning?.merge(await request.validate(UpdatePlanningValidator))
+      const userId = (request.body().user_project_id)
+        const user = await User.findNotDeleted(userId); 
+       if(!planning){
+        return response.status(404)
+      }
+       if (user) {
+        planning.save()
+      } else if (!user) {
+        return response.unprocessableEntity({
+          errors: [
+            {
+              field: 'user_project_id',
+              rule: 'exists',
+            },
+          ],
+        });
+      }
+      return planning
     }
-    else {
-
-      planning.save()
-    }
-    return planning
-
-  }
-
-
-
-  //   /*
-  //  * update =  update by id
-  //  * Params: request, response
-  //  */
-  //   public async update({ request, params,response }: HttpContextContract) {
-
-  //     const planning = await Planning.findNotDeleted(params.id)
-  //     planning?.merge(await request.validate(UpdatePlanningValidator))
-  //     const userProject = await UserProjects.findNotDeleted(request.body().user_project_id)
-  //     if(!planning){
-  //       return response.status(404)
-  //     }
-  //      if (userProject) {
-  //       planning.save()
-  //     } else if (!userProject) {
-  //       return response.unprocessableEntity({
-  //         errors: [
-  //           {
-  //             field: 'user_project_id',
-  //             rule: 'exists',
-  //           },
-  //         ],
-  //       });
-  //     }
-  //     return userProject
-  //   }
   /**
  * Update planning to isDeleted=true
  * Update Planning /users/soft-delete/:id

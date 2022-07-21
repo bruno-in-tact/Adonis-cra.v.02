@@ -28,8 +28,8 @@ export default class UpdatePlanningValidator {
    *    ```
    */
   public schema = schema.create({
-    // user_project_id:schema.number.optional(),
-    daydate: schema.date.optional(),
+    user_project_id:schema.number.optional(),
+    dayDate: schema.string.optional(),
     dayPassed: schema.number.optional( [
       rules.range(0, 1),
     ]),

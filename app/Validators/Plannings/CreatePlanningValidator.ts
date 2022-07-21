@@ -28,10 +28,10 @@ export default class CreatePlanningValidator {
    *    ```
    */
   public schema = schema.create({
-    userProject_id:schema.number(),
-    daydate: schema.date(),
+    user_project_id:schema.number(),
+    dayDate: schema.string([rules.escape()]),
     dayPassed: schema.number( [
-      rules.range(0, 1),
+    rules.range(0, 1),
     ]),
 
   })
