@@ -14,7 +14,6 @@ export default class PlanningsController {
   public async index({ }: HttpContextContract) {
     const plannings = await Planning.all()
     return plannings
-
   }
 
   /*

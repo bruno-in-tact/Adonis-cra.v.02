@@ -71,8 +71,8 @@ Route.group(() => {
 
     Route.group(() => {
         Route.post('/new', 'UserProjectsController.new')
-        Route.get('/index', 'UserProjectsController.getAllEvenDeleted').middleware('admin')
-        Route.get('/get', 'UserProjectsController.getAllNotDeleted').middleware('admin')
+        Route.get('/index', 'UserProjectsController.getAllUserProjects').middleware('admin')
+        Route.get('/me/:id', 'UserProjectsController.me')
         Route.get('/:id', 'UserProjectsController.find').middleware('admin')
         Route.put('/update/:id', 'UserProjectsController.update').middleware('admin')
         Route.delete('/soft-delete/:id', 'UserProjectsController.softDelete').middleware('admin')

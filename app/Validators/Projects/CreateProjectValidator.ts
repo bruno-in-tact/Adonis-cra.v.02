@@ -26,7 +26,7 @@ export default class CreateProjectValidator {
    */
   public schema = schema.create({
 
-    title: schema.string({trim: true },[rules.regex(/^[a-zA-Z]+$/),]),
+    title: schema.string({trim: true },),
     key: schema.string([rules.unique({ table: 'projects', column: 'key' })]),
     clientName: schema.string({trim: true },),
     description: schema.string.optional({trim: true },),

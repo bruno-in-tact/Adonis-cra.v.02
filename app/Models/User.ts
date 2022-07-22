@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { BaseModel, beforeSave, column, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm';
 import Hash from '@ioc:Adonis/Core/Hash';
 import Project from './Project';
+import { Response } from '@adonisjs/core/build/standalone';
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -56,10 +57,16 @@ export default class User extends BaseModel {
     return this.query().where('isDeleted', false);
   }
 
+
+  
+
+
   @manyToMany(() => Project, {
      pivotTable: 'user_project',
   })
   public projects: ManyToMany<typeof Project>;
+
+
 
   @beforeSave()
   public static async hashPassword(user: User) {

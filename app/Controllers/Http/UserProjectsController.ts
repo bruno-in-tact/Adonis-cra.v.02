@@ -10,25 +10,33 @@ export default class UserProjectsController {
    * index = GET ALL
    * Params: no
    */
-  public async getAllEvenDeleted({ }: HttpContextContract) {
-    const usersProjects = await UserProject.all()
-    console.log('usersProjects', usersProjects);
+  public async getAllUserProjects({ }: HttpContextContract) {
 
-    return usersProjects
+    const allProjectByUsers = await User.query().preload('projects')
+    return allProjectByUsers
+    // const allProjectByUsers = await User.query().preload('projects', (query) => {
+    //   query
+    // })
+    // return allProjectByUsers
   }
 
-  /*
-* allNotDeleted =  find all usersProject not soft deleted
-* Params: none
-*  GET : userProject/get
-*/
-  public async getAllNotDeleted({ auth }: HttpContextContract) {
-    const sessionUser = auth.use('web').user!;
-    const allNotDeleted = await UserProject.findAllNotDeleted()
-    if (sessionUser) {
-      return allNotDeleted
+  public async me({  params }: HttpContextContract) {
+    //TODO return all project from the selected USER
+
+    const user = await User.findNotDeleted(params.id)
+    console.log('USER',user?.serialize());
+    
+    if(user){
+      const userProjects = await user.related('projects').query()
+      return userProjects
     }
   }
+
+
+  public async userConnected({ auth, response }) {
+    return response.ok({ user: auth.user })
+  }
+
   /*
  * new =  create a new userProject
  * Params: request, response
@@ -36,7 +44,6 @@ export default class UserProjectsController {
   public async new({ response, request }: HttpContextContract) {
     const user = await User.findNotDeleted(request.body().user_id)
     const project = await Project.findNotDeleted(request.body().project_id)
-
 
     if (!project) {
       return response.unprocessableEntity({
@@ -62,18 +69,31 @@ export default class UserProjectsController {
     // On est assuré que tout existe
     // On créé la liaison
     await project.related('users').attach([user.id]);
-
-
-    return response.created();
+    return response.json({ message: 'User Project created' });
   }
   /*
     * FIND user by ID
     * Find User /userProject/:id
     */
-  public async find({ params }: HttpContextContract) {
-    const userProject = await UserProject.findNotDeleted(params.id);
-    return userProject
-  }
+  public async find({ params, auth, response}: HttpContextContract) {
+  
+     //TODO return all project from the selected USER
+
+     const user = await User.findNotDeleted(params.id)
+     console.log('USER',user?.serialize());
+     
+     if(user){
+       const userProjects = await user.related('projects').query()
+       return userProjects
+     }
+     else{
+      return response.badRequest({
+              
+              message: 'UserProject does not exist'
+      })
+    }
+  
+
   /*
    * update =  update by id
    * Params: request, response
@@ -81,58 +101,71 @@ export default class UserProjectsController {
   //TODO verify the update 
   public async update({ request, params, response }: HttpContextContract) {
 
-    const userProject = await UserProject.findNotDeleted(params.id)
     const user = await User.findNotDeleted(request.body().user_id)
     const project = await Project.findNotDeleted(request.body().project_id)
 
-    if (!userProject) {
+    if (!user&&project) {
       return response.notFound()
     }
-    if (project && user) {
-      console.log('user', user.serialize());
-      console.log('project', project.serialize());
-      console.log('userProject', userProject.serialize());
-      
-      // userProject?.merge(await request.validate(UpdateUserProjectValidator))
-      const userProjectPayload = await request.validate(UpdateUserProjectValidator)
-      await userProject.merge(userProjectPayload).save()
-      userProject.refresh
-      return userProject
+   await user
+   ?.related('projects')
+   .sync(request.body().user_id,request.body().project_id)
+   return user
 
-    } else if (!project) {
-      return response.unprocessableEntity({
-        errors: [
-          {
-            field: 'project_id',
-            rule: 'exists',
-          },
-        ],
-      });
-    } else if (!user) {
-      return response.unprocessableEntity({
-        errors: [
-          {
-            field: 'user_id',
-            rule: 'exists',
-          },
-        ],
-      });
-      console.log('ERROR');
-      // throw new MyError();
-    }
   }
+
+
+
   /*
  * Update user to isDeleted=true
  * Update User /userProject/soft-delete/:id
  */
 
-  public async softDelete({ params }: HttpContextContract) {
-    const userProject = await UserProject.findOrFail(params.id)
-    userProject.$isDeleted = true
-    await userProject.save()
+  public async softDelete({ params, response }: HttpContextContract) {
+    const userId = params.userId;
+    const projectId = params.projectId;
 
-    return userProject
+    const project = await Project.findNotDeleted(projectId);
+    const user = await User.findNotDeleted(userId);
+    if (!project) {
+      return response.unprocessableEntity({
+        errors: [
+          {
+            field: 'projectId',
+            rule: 'exists',
+          },
+        ],
+      });
+    }
+    if (!user) {
+      return response.unprocessableEntity({
+        errors: [
+          {
+            field: 'user',
+            rule: 'exists',
+          },
+        ],
+      });
+    }
+
+    const userProject = await user
+      .related('projects')
+      .query()
+      .where({
+        project_id: projectId,
+      })
+      .first();
+
+    if (!userProject) {
+      return response.notFound();
+    }
+
+    // On est assuré que tout existe
+    await user.related('projects').detach([user.id]);
+    return response.noContent();
   }
+
+
 
 
   /*
@@ -140,9 +173,9 @@ export default class UserProjectsController {
  * DELETE User /userProject/delete/:id
  */
   public async destroy({ params }: HttpContextContract) {
-    const userProject = await UserProject.findOrFail(params.id)
-    await userProject.delete()
 
-    return userProject
+
+  
+   
   }
 }
