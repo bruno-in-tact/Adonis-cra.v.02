@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm';
 import UserProject from './UserProject';
+import Database from '@ioc:Adonis/Lucid/Database';
 
 export default class Planning extends BaseModel {
   @column({ isPrimary: true })
@@ -35,4 +36,6 @@ export default class Planning extends BaseModel {
   public static findAllNotDeleted() {
     return this.query().where('isDeleted', false);
   }
+
+
 }

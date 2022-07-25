@@ -74,7 +74,7 @@ export default class UserController {
     }
     const userPayload = await request.validate(UpdateUserValidator);
 
-    if (userPayload.is_admin && !sessionUser.isAdmin) {
+    if (userPayload.isAdmin && !sessionUser.isAdmin) {
       return response.unprocessableEntity({
         errors: [
           {

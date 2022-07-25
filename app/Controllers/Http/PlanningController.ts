@@ -2,7 +2,6 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import UpdatePlanningValidator from 'App/Validators/Plannings/UpdatePlanningValidator'
 import CreatePlanningValidator from 'App/Validators/Plannings/CreatePlanningValidator'
 import Planning from 'App/Models/Planning'
-import UserProject from 'App/Models/UserProject'
 import User from 'App/Models/User'
 
 export default class PlanningsController {
@@ -56,7 +55,7 @@ export default class PlanningsController {
     const planingPayLoad = await request.validate(CreatePlanningValidator)
     const userId = (request.body().user_project_id)
     const user = await User.findNotDeleted(userId);
-    if (user) {
+    if (user ) {
 
       const planning = await Planning.create(planingPayLoad)
       return planning
@@ -70,7 +69,6 @@ export default class PlanningsController {
         ],
       });
     }
-
   }
 
   /*
@@ -135,4 +133,13 @@ export default class PlanningsController {
 
     return planning
   }
+  
+  // public async isElegibleToRestaurantTicket({ params }: HttpContextContract) {
+  //   const user = await User.find(params.id)
+
+  //   const userProjects =  await user?.related('projects').query().preload('plannings')
+
+  //   return userProjects
+    
+  //  }
 }

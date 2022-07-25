@@ -1,7 +1,9 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Planning from 'App/Models/Planning';
 import Project from 'App/Models/Project';
 import User from 'App/Models/User';
 import UserProject from 'App/Models/UserProject';
+import CreateUserProjectValidator from 'App/Validators/UsersProjects/CreateUserProjectValidator';
 import UpdateUserProjectValidator from 'App/Validators/UsersProjects/UpdateUserProjectValidator'
 
 
@@ -20,13 +22,12 @@ export default class UserProjectsController {
     // return allProjectByUsers
   }
 
-  public async me({  params }: HttpContextContract) {
+  public async me({ params, auth}: HttpContextContract) {
     //TODO return all project from the selected USER
 
-    const user = await User.findNotDeleted(params.id)
-    console.log('USER',user?.serialize());
-    
-    if(user){
+    console.log('USER', auth.user?.id);
+    const user = await User.find(auth.user?.id )
+    if (user) {
       const userProjects = await user.related('projects').query()
       return userProjects
     }
@@ -75,24 +76,23 @@ export default class UserProjectsController {
     * FIND user by ID
     * Find User /userProject/:id
     */
-  public async find({ params, auth, response}: HttpContextContract) {
-  
-     //TODO return all project from the selected USER
+  public async find({ params, auth, response }: HttpContextContract) {
 
-     const user = await User.findNotDeleted(params.id)
-     console.log('USER',user?.serialize());
-     
-     if(user){
-       const userProjects = await user.related('projects').query()
-       return userProjects
-     }
-     else{
+    //TODO return all project from the selected USER
+
+    const user = await User.findNotDeleted(params.id)
+    console.log('USER', user?.serialize());
+
+    if (user) {
+      const userProjects = await user.related('projects').query()
+      return userProjects
+    }
+    else {
       return response.badRequest({
-              
-              message: 'UserProject does not exist'
+        message: 'UserProject does not exist or invalid data input'
       })
     }
-  
+  }
 
   /*
    * update =  update by id
@@ -104,29 +104,34 @@ export default class UserProjectsController {
     const user = await User.findNotDeleted(request.body().user_id)
     const project = await Project.findNotDeleted(request.body().project_id)
 
-    if (!user&&project) {
+    if (!user && project) {
       return response.notFound()
     }
-   await user
-   ?.related('projects')
-   .sync(request.body().user_id,request.body().project_id)
-   return user
+    if(user && project){
+      const planning = await Planning.query().preload("userProject")
+      const userProject = await User.findNotDeleted(request.body().user_id)
+      await userProject?.related('projects')..sync(request.body().project_id)
+
+    }
+    //TODO NOT WORKING BECAUSE OF PLANINGS NEED TO BE DONE 
 
   }
-
-
 
   /*
  * Update user to isDeleted=true
  * Update User /userProject/soft-delete/:id
  */
 
-  public async softDelete({ params, response }: HttpContextContract) {
-    const userId = params.userId;
-    const projectId = params.projectId;
-
+  public async softDelete({ response, request }: HttpContextContract) {
+    // const userProjectPayload = await request.validate(CreateUserProjectValidator)
+    const userId = request.body().userId;
+    const projectId = request.body().projectId;
+    console.log("PROJECTID",projectId);
     const project = await Project.findNotDeleted(projectId);
+    console.log("userId",userId);
     const user = await User.findNotDeleted(userId);
+    
+
     if (!project) {
       return response.unprocessableEntity({
         errors: [
@@ -147,7 +152,6 @@ export default class UserProjectsController {
         ],
       });
     }
-
     const userProject = await user
       .related('projects')
       .query()
@@ -161,7 +165,7 @@ export default class UserProjectsController {
     }
 
     // On est assuré que tout existe
-    await user.related('projects').detach([user.id]);
+    await user.related('projects').sync([user.id]);
     return response.noContent();
   }
 
@@ -175,7 +179,9 @@ export default class UserProjectsController {
   public async destroy({ params }: HttpContextContract) {
 
 
-  
-   
+
+
   }
+
+  
 }

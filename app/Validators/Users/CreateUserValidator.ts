@@ -11,8 +11,8 @@ export default class CreateUserValidator {
 
     // user: schema.object().members({
 
-      first_name: schema.string({ trim: true }, [rules.escape()]),
-      last_name: schema.string({ trim: true }, [rules.escape()]),
+      firstName: schema.string({ trim: true }, [rules.escape()]),
+      lastName: schema.string({ trim: true }, [rules.escape()]),
       email: schema.string({ trim: true }, [rules.email(), rules.escape(),
       rules.normalizeEmail({
         allLowercase: true,
@@ -24,10 +24,10 @@ export default class CreateUserValidator {
       })]),
 
       password: schema.string([rules.minLength(6), rules.escape()],),
-      start_date: schema.string([rules.escape()]),
+      startDate: schema.string([rules.escape()]),
       town: schema.string.optional({ trim: true }, [rules.escape()]),
       country: schema.string.optional({ trim: true }, [rules.escape()]),
-      is_admin: schema.boolean.optional([rules.escape()]),
+      isDdmin: schema.boolean.optional([rules.escape()]),
 
     })
   // })

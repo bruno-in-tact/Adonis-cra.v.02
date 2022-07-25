@@ -2,6 +2,8 @@ import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm';
 import Project from './Project';
 import User from './User';
 
+
+//todo no need to do a pivot table model and controller with adonisjs
 export default class UserProject extends BaseModel {
   @column({ isPrimary: true })
   public id: number;

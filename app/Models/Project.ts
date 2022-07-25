@@ -52,4 +52,6 @@ export default class Project extends BaseModel {
   public static findAllNotDeleted() {
     return this.query().where('isDeleted', false);
   }
+
+
 }

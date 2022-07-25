@@ -28,8 +28,8 @@ export default class UpdateUserValidator {
 
     // user: schema.object().members({
 
-      first_name: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
-      last_name: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
+      firstName: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
+      lastName: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
       email: schema.string.optional({ trim: true }, [rules.email(), rules.escape(),
       rules.normalizeEmail({
         allLowercase: true,
@@ -40,10 +40,10 @@ export default class UpdateUserValidator {
         where: { is_deleted: false },
       })]),
       password: schema.string.optional([rules.minLength(6), rules.escape()],),
-      start_date: schema.string.optional([rules.escape()]),
+      startDate: schema.string.optional([rules.escape()]),
       town: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
       country: schema.string.optional({ trim: true }, [rules.alpha(), rules.escape()]),
-      is_admin: schema.boolean.optional([rules.escape()]),
+      isAdmin: schema.boolean.optional([rules.escape()]),
     })
   // })
 
