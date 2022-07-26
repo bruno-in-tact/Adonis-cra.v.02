@@ -2,9 +2,17 @@ import { DateTime } from 'luxon';
 import { BaseModel, beforeSave, column, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm';
 import Hash from '@ioc:Adonis/Core/Hash';
 import Project from './Project';
-import { Response } from '@adonisjs/core/build/standalone';
 
 export default class User extends BaseModel {
+
+  // /**
+  //  * Serialize the `$extras` object as it is
+  //  */
+  public serializeExtras = true
+  
+
+  
+
   @column({ isPrimary: true })
   public id: number;
 
@@ -15,10 +23,10 @@ export default class User extends BaseModel {
   public password: string;
 
   @column()
-  public first_name: string;
+  public firstName: string;
 
   @column()
-  public last_name: string;
+  public lastName: string;
 
   @column()
   public country: string;
@@ -27,11 +35,11 @@ export default class User extends BaseModel {
   public town: string;
 
   @column()
-  public start_date: DateTime;
+  public startDate: string;
 
   @column({
     serialize: (value?: Number) => {
-      return !!value;
+      return !!value; 
     },
   })
   public isAdmin: boolean;
@@ -61,6 +69,15 @@ export default class User extends BaseModel {
 
   @manyToMany(() => Project, {
      pivotTable: 'user_project',
+  })
+
+  @manyToMany(() => Project, {
+    pivotTable: 'user_project',
+    pivotColumns: ['day_date'],
+  })
+  @manyToMany(() => Project, {
+    pivotTable: 'user_project',
+    pivotColumns: ['day_passed'],
   })
   public projects: ManyToMany<typeof Project>;
 

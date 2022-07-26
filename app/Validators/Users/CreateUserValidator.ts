@@ -27,7 +27,8 @@ export default class CreateUserValidator {
       startDate: schema.string([rules.escape()]),
       town: schema.string.optional({ trim: true }, [rules.escape()]),
       country: schema.string.optional({ trim: true }, [rules.escape()]),
-      isDdmin: schema.boolean.optional([rules.escape()]),
+      isAdmin: schema.boolean.optional([rules.escape()]),
+    
 
     })
   // })

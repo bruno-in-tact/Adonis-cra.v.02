@@ -1,7 +1,6 @@
 import { schema, CustomMessages, rules, validator } from '@ioc:Adonis/Core/Validator'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { Runner } from '@japa/runner'
-import { Request } from '@adonisjs/core/build/standalone'
+
 
 export default class CreateUserProjectValidator {
   constructor(protected ctx: HttpContextContract) {}
@@ -31,6 +30,10 @@ export default class CreateUserProjectValidator {
   public schema = schema.create({
     user_id: schema.number(),
     project_id: schema.number(),
+    dayDate: schema.string([rules.escape()]),
+    dayPassed: schema.number( [
+    rules.range(0, 1),
+    ]),
   })
 
 

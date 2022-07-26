@@ -31,7 +31,10 @@ export default class CreateProjectValidator {
     clientName: schema.string({trim: true },),
     description: schema.string.optional({trim: true },),
     isElligibleTr:schema.boolean.optional(),
-
+    // dayDate: schema.string.optional([rules.escape()]),
+    // dayPassed: schema.number.optional( [
+    // rules.range(0, 1),
+    // ]),
   })
 
 

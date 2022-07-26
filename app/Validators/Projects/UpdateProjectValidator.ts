@@ -22,6 +22,10 @@ export default class UpdateProjectValidator {
     description: schema.string.optional(),
     clientName: schema.string.optional(),
     is_elligible_tr: schema.boolean.optional(),
+    // dayDate: schema.string.optional([rules.escape()]),
+    // dayPassed: schema.number.optional( [
+    // rules.range(0, 1),
+    // ]),
   });
 
   public messages: CustomMessages = {

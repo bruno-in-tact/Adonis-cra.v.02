@@ -1,50 +1,23 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Planning from 'App/Models/Planning';
 import Project from 'App/Models/Project';
 import User from 'App/Models/User';
-import UserProject from 'App/Models/UserProject';
 import CreateUserProjectValidator from 'App/Validators/UsersProjects/CreateUserProjectValidator';
-import UpdateUserProjectValidator from 'App/Validators/UsersProjects/UpdateUserProjectValidator'
+import UpdateUserProjectValidator from 'App/Validators/UsersProjects/UpdateUserProjectValidator';
+
 
 
 export default class UserProjectsController {
-  /*
-   * index = GET ALL
-   * Params: no
-   */
-  public async getAllUserProjects({ }: HttpContextContract) {
 
-    const allProjectByUsers = await User.query().preload('projects')
-    return allProjectByUsers
-    // const allProjectByUsers = await User.query().preload('projects', (query) => {
-    //   query
-    // })
-    // return allProjectByUsers
-  }
-
-  public async me({ params, auth}: HttpContextContract) {
-    //TODO return all project from the selected USER
-
-    console.log('USER', auth.user?.id);
-    const user = await User.find(auth.user?.id )
-    if (user) {
-      const userProjects = await user.related('projects').query()
-      return userProjects
-    }
-  }
-
-
-  public async userConnected({ auth, response }) {
-    return response.ok({ user: auth.user })
-  }
-
-  /*
+    /*
  * new =  create a new userProject
  * Params: request, response
  */
   public async new({ response, request }: HttpContextContract) {
     const user = await User.findNotDeleted(request.body().user_id)
     const project = await Project.findNotDeleted(request.body().project_id)
+    const dayDate = request.body().dayDate
+    const dayPassed = request.body().dayPassed
+    const userProjectPayload = await request.validate(CreateUserProjectValidator)
 
     if (!project) {
       return response.unprocessableEntity({
@@ -69,9 +42,60 @@ export default class UserProjectsController {
 
     // On est assuré que tout existe
     // On créé la liaison
-    await project.related('users').attach([user.id]);
+    // ON créer un objet a user, afin d'ADD dayDate et dayPassed,
+    if (userProjectPayload) {
+      await project.related('users').attach({
+        [user.id]: {
+          day_date: dayDate,
+          day_passed: dayPassed
+        }
+      })
+    }
     return response.json({ message: 'User Project created' });
   }
+
+  /*
+  * index = GET ALL
+  * Params: no
+  */
+
+  //todo: on preload les pivotsColumns afin de les ajoutés à l'objet users,  BESOIN DE seriazliszExtras =true dans
+   public async getAllUserProjects({ }: HttpContextContract) {
+    const users = await User
+    .query()
+    .preload('projects', (query) => {
+      query.pivotColumns(['day_date', 'day_passed'])
+    })
+     
+    return users
+
+
+    // const allProjectByUsers = await User.query().preload('projects')
+    // return allProjectByUsers
+
+  }
+  /*
+ * ME = get all userProject of connected user
+ * Params: auth, 
+ *  url/api/usersProjects/index
+ */
+  public async me({ params, auth }: HttpContextContract) {
+    //TODO return all project from the selected USER
+    //TODO need to specify the day_date/day_passed latter on
+
+    console.log('USER', auth.user?.id);
+    const user = await User.find(auth.user?.id)
+    if (user) {
+      const userProjects = await user.related('projects').query()
+      return userProjects
+    }
+  }
+
+  public async userConnected({ auth, response }) {
+    return response.ok({ user: auth.user })
+  }
+
+
   /*
     * FIND user by ID
     * Find User /userProject/:id
@@ -101,20 +125,42 @@ export default class UserProjectsController {
   //TODO verify the update 
   public async update({ request, params, response }: HttpContextContract) {
 
-    const user = await User.findNotDeleted(request.body().user_id)
-    const project = await Project.findNotDeleted(request.body().project_id)
+      //TODO UPDATE THE PROJECT USERS by relation of userId && projectID
+ 
+      const userProjectPayload = await request.validate(UpdateUserProjectValidator)
+      const user = await User.findNotDeleted(userProjectPayload.userId)
+      const project = await Project.findNotDeleted(userProjectPayload.projectId)
 
-    if (!user && project) {
-      return response.notFound()
+     if ( !project){
+      return response.unprocessableEntity({
+        errors: [
+          {
+            field: 'project_id',
+            rule: 'exists',
+          },
+        ],
+      });
     }
-    if(user && project){
-      const planning = await Planning.query().preload("userProject")
-      const userProject = await User.findNotDeleted(request.body().user_id)
-      await userProject?.related('projects')..sync(request.body().project_id)
-
+    if ( !user){
+      return response.unprocessableEntity({
+        errors: [
+          {
+            field: 'user_id',
+            rule: 'exists',
+          },
+        ],
+      });
     }
-    //TODO NOT WORKING BECAUSE OF PLANINGS NEED TO BE DONE 
+    if( user && project){
+        await project.related('users').sync({
+         [user.id]: {
+           day_date: userProjectPayload.dayDate,
+           day_passed: userProjectPayload.dayPassed,
+         }
+       }) 
+    }
 
+   return response.json({ message : 'the user project has been updated'})
   }
 
   /*
@@ -123,14 +169,11 @@ export default class UserProjectsController {
  */
 
   public async softDelete({ response, request }: HttpContextContract) {
-    // const userProjectPayload = await request.validate(CreateUserProjectValidator)
-    const userId = request.body().userId;
-    const projectId = request.body().projectId;
-    console.log("PROJECTID",projectId);
-    const project = await Project.findNotDeleted(projectId);
-    console.log("userId",userId);
-    const user = await User.findNotDeleted(userId);
+    const userProjectPayload = await request.validate(UpdateUserProjectValidator)
+    const user = await User.findNotDeleted(userProjectPayload.userId)
+    const project = await Project.findNotDeleted(userProjectPayload.projectId)
     
+
 
     if (!project) {
       return response.unprocessableEntity({
@@ -156,7 +199,7 @@ export default class UserProjectsController {
       .related('projects')
       .query()
       .where({
-        project_id: projectId,
+        project_id: userProjectPayload.projectId,
       })
       .first();
 
@@ -166,11 +209,9 @@ export default class UserProjectsController {
 
     // On est assuré que tout existe
     await user.related('projects').sync([user.id]);
+    await user.merge({ isDeleted: true }).save();
     return response.noContent();
   }
-
-
-
 
   /*
  * DELETE userProject 
@@ -183,5 +224,5 @@ export default class UserProjectsController {
 
   }
 
-  
+
 }
