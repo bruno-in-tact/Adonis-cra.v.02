@@ -73,10 +73,10 @@ Route.group(() => {
         Route.post('/new', 'UserProjectsController.new')
         Route.get('/index', 'UserProjectsController.getAllUserProjects').middleware('admin')
         Route.get('/me', 'UserProjectsController.me')
-        Route.get('/:id', 'UserProjectsController.find').middleware('admin')
+        Route.get('/find', 'UserProjectsController.find').middleware('admin')
         Route.put('/update/:id', 'UserProjectsController.update').middleware('admin')
-        Route.delete('/soft-delete/:id', 'UserProjectsController.softDelete').middleware('admin')
-        Route.delete('/delete/:id', 'UserProjectsController.destroy').middleware('admin')
+        Route.delete('/soft-delete', 'UserProjectsController.softDelete').middleware('admin')
+        Route.delete('/delete', 'UserProjectsController.destroy').middleware('admin')
 
     }).prefix('/usersProjects').middleware(['auth'])
 

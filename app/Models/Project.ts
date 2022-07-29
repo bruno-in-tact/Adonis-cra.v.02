@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { BaseModel, column, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, column, ManyToMany, manyToMany, scope } from '@ioc:Adonis/Lucid/Orm';
 import User from './User';
 
 export default class Project extends BaseModel {
@@ -51,10 +51,10 @@ export default class Project extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime;
 
-  // @manyToMany(() => User, {
-  //   pivotTable: 'user_project',
-  //   pivotColumns: ['id'],
-  // })
+  @manyToMany(() => User, {
+    pivotTable: 'user_project',
+    pivotColumns: ['id'],
+  })
   @manyToMany(() => User, {
     pivotTable: 'user_project',
     pivotColumns: ['day_date'],
@@ -75,4 +75,9 @@ export default class Project extends BaseModel {
   }
 
 
-}
+  public static createdThisMonth = scope(query=> {
+    const thirtyDayAgo =  DateTime.local().minus({days: 30}).toSQL()
+    query.where('createdAt', '>=', thirtyDayAgo)
+  }
+  )}
+

@@ -28,8 +28,8 @@ export default class CreateUserProjectValidator {
    *    ```
    */
   public schema = schema.create({
-    user_id: schema.number(),
-    project_id: schema.number(),
+    userId: schema.number(),
+    projectId: schema.number(),
     dayDate: schema.string([rules.escape()]),
     dayPassed: schema.number( [
     rules.range(0, 1),
