@@ -1,4 +1,4 @@
-# API - Projet CRA
+# API - Projet CRA - Zilio bruno (rédaction de Florian reprise et arrangé pour mon projet)
 
 ## Projet
 
@@ -6,13 +6,14 @@
 
 Cette API a pour but de remplacer le fichier Excel utilisé par In-Tact pour mieux gérer son CRA.
 Elle sera utilisée par leurs développeurs front afin qu'ils puissent créer une UI dédiée
+Elle m'a également permis d'appréhender le fonctionnement d'Adonis et des avantages à utiliser un framework.
 
 ### Obligations
 
 Ce projet devra contenir au moins :
 
-- 70% de couvertures de test
-- une documentation swagger à jour et fonctionnelle
+- Une couverture de test
+- une documentation  à jour et fonctionnelle
 
 ### Pré-requis
 
@@ -27,11 +28,10 @@ Un certains nombre de fonctionnalités sont nécessaires afin de pouvoir travail
 Ce projet utilise [adonis](https://adonisjs.com/) en tant que framework node.js.
 L'ensemble des routes et des appels sont définies dans le fichier `start/routes.ts`
 
-Nous utiliserons une base de donnée MariaDB en version 10.X
 
 ### Hébergement
 
-Une CI/CD sera mise en place pour permettre un déploiement continue vers Azure, hébergé par In-Tact.
+Dans l'idéal une CI/CD sera mise en place pour permettre un déploiement continue vers Azure, hébergé par In-Tact,  actuellement mon projet est uniquement en local
 
 ## Travailler en local
 
@@ -72,15 +72,9 @@ Ces données de connexions sont ajoutées dans le fichier `.env.test`
 Une fois l'ensemble des éléments prêts, il faudra donc lancer :
 
 ```
-npm t
+npm t 
 ```
 
-L'ensemble des données de coverage, créé grâce à NYC, est situé dans le dossier `coverage`
-
 ## Accéder à la documentation
-
-Dès lors que le serveur est lancé, l'application est disponible à l'adresse
-
-http://localhost:3333/docs/index.html#/
 
 L'ensemble du code pour la documentation est contenue dans le dossier `docs/*`
